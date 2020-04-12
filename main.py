@@ -1,6 +1,5 @@
 from pprint import pprint
 import pickle
-import requests
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -12,27 +11,40 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def show_threads(service, user_id='me'):
     threads = service.users().threads().list(userId=user_id).execute().get('threads', [])
+    all_threads_info = []
     for thread in threads:
         tdata = service.users().threads().get(userId=user_id, id=thread['id']).execute()
         nmsgs = len(tdata['messages'])
-        entire_thread = tdata['messages'][nmsgs-1]
-        msg1 = entire_thread['payload']['parts'][0]['body']['data']
-        msg2 = entire_thread['payload']['parts'][1]['body']['data']
-        print("yuh")
-        pprint(show_message(msg1))
-        print("eh")
-        pprint(show_message(msg2))
-        # for i in range(0, nmsgs):
-        #     msg = entire_thread['payload']['parts'][i]['body']['data']
-        #     pprint(msg)
-        #     print("-------------------------------")
-            #['payload']['parts'][1]['body']['data']
+        msgs_in_thread = [tdata['messages'][i] for i in range(nmsgs)]
+
+        sender_email = ''
+        all_responses = []
+        first_run = True
+        for msg in msgs_in_thread:
+            if first_run: #only want to get responses, not og message
+                pass
+            else:
+                message = show_message(msg['payload']['parts'][0]['body']['data'])
+
+            responder_email = ''
+            for header in msg['payload']['headers']:
+                if header['name'] == 'From':
+                    if first_run:
+                        first_run = False
+                        sender_email = find_email(header['value'])
+                        sender_dict = {'sender': sender_email}
+                        all_responses.append(sender_dict)
+                    else:
+                        responder_email = find_email(header['value'])
+                        msg_dict = {'responder': responder_email, 'reponse': message}
+                        all_responses.append(msg_dict)
+        all_threads_info.append(all_responses)
+    return all_threads_info
 
 def show_message(encoded_message):
     msg_raw = base64.urlsafe_b64decode(encoded_message.encode('ASCII'))
     msg_str = email.message_from_bytes(msg_raw)
     content_type = msg_str.get_content_maintype()
-
     if content_type == 'multipart':
         #part 1 is plain text, part 2 is html
         part1, part2 = msg_str.get_payload()
@@ -43,12 +55,14 @@ def show_message(encoded_message):
         return thread_response
 
 def find_message(s):
-    msg = re.search(r'<div dir="ltr">(.*?)<div><br></div>', s)
-    if msg != None:
-        return msg.group(1)
-    else:
-        return "Error"
+    x = s.split('On')
+    y = ''.join(x[0])
+    return y
 
+def find_email(s):
+    x = s.split('<')
+    y = ''.join(x[1])
+    return y[0:len(y)-1]
 
 def get_service():
     creds = None
@@ -75,6 +89,5 @@ def get_service():
     return service
 
 
-show_threads(get_service())
-def threads(service, user_id = "me"):
-    threads = service.users().threads()
+print(show_threads(get_service()))
+
