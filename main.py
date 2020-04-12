@@ -5,7 +5,9 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-
+import email
+import base64
+import re
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def show_threads(service, user_id='me'):
@@ -13,27 +15,39 @@ def show_threads(service, user_id='me'):
     for thread in threads:
         tdata = service.users().threads().get(userId=user_id, id=thread['id']).execute()
         nmsgs = len(tdata['messages'])
-        
-        #pprint(tdata)
-        for k in msgs.keys():
-            if k == 'payload':
-                print(msgs[k]['body'])#.keys())
-                #print(msgs[k]['parts'])
-# id
-# threadId
-# labelIds
-# snippet
-# historyId
-# internalDate
-# payload
-# sizeEstimate
-        msgs = tdata['messages'][0]['snippet']
+        entire_thread = tdata['messages'][nmsgs-1]
+        msg1 = entire_thread['payload']['parts'][0]['body']['data']
+        msg2 = entire_thread['payload']['parts'][1]['body']['data']
+        print("yuh")
+        pprint(show_message(msg1))
+        print("eh")
+        pprint(show_message(msg2))
+        # for i in range(0, nmsgs):
+        #     msg = entire_thread['payload']['parts'][i]['body']['data']
+        #     pprint(msg)
+        #     print("-------------------------------")
+            #['payload']['parts'][1]['body']['data']
 
-        # subject = ''
-        # for header in msg['headers']:
-        #     if header['name'] == 'Subject':
-        #         subject = header['value']
-        #         break
+def show_message(encoded_message):
+    msg_raw = base64.urlsafe_b64decode(encoded_message.encode('ASCII'))
+    msg_str = email.message_from_bytes(msg_raw)
+    content_type = msg_str.get_content_maintype()
+
+    if content_type == 'multipart':
+        #part 1 is plain text, part 2 is html
+        part1, part2 = msg_str.get_payload()
+        thread_response = find_message(part1.get_payload())
+        return thread_response
+    else:
+        thread_response = find_message(msg_str.get_payload())
+        return thread_response
+
+def find_message(s):
+    msg = re.search(r'<div dir="ltr">(.*?)<div><br></div>', s)
+    if msg != None:
+        return msg.group(1)
+    else:
+        return "Error"
 
 
 def get_service():
