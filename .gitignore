@@ -1,2 +1,5 @@
 token.pickle
 credentials.json
+*.json
+*.pickle
+__pychache__
