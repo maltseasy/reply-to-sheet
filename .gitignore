@@ -1,4 +1,4 @@
-token.pickle
+token*.pickle
 credentials.json
 credentials*.json
 *.pickle
