@@ -43,9 +43,12 @@ def show_threads(service, user_id='me'):
         first_run = True
         for msg in msgs_in_thread:
             if first_run: #only want to get responses, not og message
+                msg_id = msg['id']
                 pass
             else:
                 message = show_message(msg['payload']['parts'][0]['body']['data'])
+                msg_id = msg['id']
+                # pprint(msg)
 
             responder_email = ''
             for header in msg['payload']['headers']:
@@ -55,36 +58,40 @@ def show_threads(service, user_id='me'):
                         sender_email = find_email(header['value'])
                         sender_dict = {'sender': sender_email}
                         all_responses.append(sender_dict)
+                        id_dict = {'id': msg_id}
+                        all_responses.append(id_dict)
                     else:
                         responder_email = find_email(header['value'])
-                        msg_dict = {'responder': responder_email, 'reponse': message}
+                        msg_dict = {'responder': responder_email, 'response': message}
                         all_responses.append(msg_dict)
+                        id_dict = {'id': msg_id}
+                        all_responses.append(id_dict)
         all_threads_info.append(all_responses)
-    pprint(all_threads_info[1])
-    if all_threads_info[1]['responder'] in sheetslink:
-        spreadsheetid = sheetslink[all_threads_info[0][0]['sender']]
-        request = sheetservice.spreadsheets().values().get(spreadsheetId=spreadsheetid, range='A:B', valueRenderOption='FORMATTED_VALUE', dateTimeRenderOption='SERIAL_NUMBER')
-        response = request.execute()
-        share(drive_service,all_threads_info[0][1]['responder'])
-    else:
+    # if all_threads_info[1]['responder'] in sheetslink:
+    #     spreadsheetid = sheetslink[all_threads_info[0][0]['sender']]
+    #     request = sheetservice.spreadsheets().values().get(spreadsheetId=spreadsheetid, range='A:B', valueRenderOption='FORMATTED_VALUE', dateTimeRenderOption='SERIAL_NUMBER')
+    #     response = request.execute()
+    #     share(drive_service,all_threads_info[0][1]['responder'])
+    # else:
         
-        spreadsheet = sheetservice.spreadsheets().create(body=spreadsheet_body,
-                                        fields='spreadsheetId').execute()
-        spreadsheetid = spreadsheet.get('spreadsheetId')
-        temp = {all_threads_info[0][0]['sender']:spreadsheetid}
-        sheetslink.update(temp)
-        request = sheetservice.spreadsheets().values().get(spreadsheetId=spreadsheetid, range='A:B', valueRenderOption='FORMATTED_VALUE', dateTimeRenderOption='SERIAL_NUMBER')
-        response = request.execute()
-        values = [
-        [str(response)],
-        [all_threads_info[0][0]['sender'],'all_threads_info[0][1][]']]
-        # print(response['values'][0][0])
-        body = {
-        'values': values
-        }
-        result = sheetservice.spreadsheets().values().update(spreadsheetId=spreadsheetid,body=body, range='A:B',valueInputOption='USER_ENTERED').execute()
-        share(drive_service, all_threads_info[0][0]['sender'])
-    return all_threads_info[0]
+    #     spreadsheet = sheetservice.spreadsheets().create(body=spreadsheet_body,
+    #                                     fields='spreadsheetId').execute()
+    #     spreadsheetid = spreadsheet.get('spreadsheetId')
+    #     temp = {all_threads_info[0][0]['sender']:spreadsheetid}
+    #     sheetslink.update(temp)
+    #     request = sheetservice.spreadsheets().values().get(spreadsheetId=spreadsheetid, range='A:B', valueRenderOption='FORMATTED_VALUE', dateTimeRenderOption='SERIAL_NUMBER')
+    #     response = request.execute()
+    #     pprint(response)
+    #     values = [
+    #     [str(response)],
+    #     [all_threads_info[0][0]['sender'],'all_threads_info[0][1][]']]
+    #     # print(response['values'][0][0])
+    #     body = {
+    #     'values': values
+    #     }
+    #     result = sheetservice.spreadsheets().values().update(spreadsheetId=spreadsheetid,body=body, range='A:B',valueInputOption='USER_ENTERED').execute()
+    #     share(drive_service, all_threads_info[0][0]['sender'])
+    return all_threads_info[2]
 def share(drive_service,email):
     batch = drive_service.new_batch_http_request(callback=callback)
     user_permission = {

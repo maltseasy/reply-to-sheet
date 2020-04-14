@@ -1,6 +1,31 @@
 {
-    "aryanmisra8@gmail.com": "8932048392849032",
-    "aryanmisra4@gmail.com": "1s9_71JTjS8h8vBjTyzMS4Vq67lZjthP-jED3LNjCVsY",
-    "no-reply@accounts.google.com": "1ebsfbj4i5g465xESQ2XqgiWf4TlCdJsN2rd2tS3CQUA",
-    "replytosheet@gmail.com": "1KxmfTQ5UcmbI-07rrbxMRW6HWZiVNF8gsDx-Lu9pHHA"
+    "aryanmisra8@gmail.com": {
+        "sheetid": 8932048392849032,
+        "idlist": [
+            32423,
+            34234
+        ]
+    },
+    "aryanmisra4@gmail.com": {
+        "sheetid": "1xcbLoTNQBB0QvGY5ykPF9qCWPkW-zh8Ha7domkK2hZQ",
+        "idlist": [
+            "171758ef33ba04c5",
+            "171758ef33ba04c5",
+            "171758ef33ba04c5",
+            "171758ef33ba04c5",
+            "171758ef33ba04c5",
+            "171758ef33ba04c5"
+        ]
+    },
+    "aryan.misra@student.tdsb.on.ca": {
+        "sheetid": "1Ow3iedrP_kP08aVKBzuY40Vy0Kbx2n50Xo5Gc8xHIo8",
+        "idlist": [
+            "171758165acb5218",
+            "171758165acb5218",
+            "171758165acb5218",
+            "171758165acb5218",
+            "171758165acb5218",
+            "171758165acb5218"
+        ]
+    }
 }
